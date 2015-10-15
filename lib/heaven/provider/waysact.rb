@@ -18,7 +18,7 @@ module Heaven
         unless File.exist?(checkout_directory)
           playbook_repository_url = "https://#{ENV['GITHUB_USER']}:#{ENV["GITHUB_TOKEN"]}@github.com/waysact/waysact-ansible.git"
           log "Cloning #{playbook_repository_url} into #{checkout_directory}"
-          execute_and_log(["git", "clone", playbook_repository_url, checkout_directory])
+          execute_and_log(["git", "clone", "--branch=ant/heaven", playbook_repository_url, checkout_directory])
         end
 
         Dir.chdir(checkout_directory) do
