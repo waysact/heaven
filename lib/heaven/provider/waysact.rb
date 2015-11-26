@@ -44,8 +44,15 @@ module Heaven
                            "--verbose", "--extra-vars", ansible_extra_vars, "--extra-vars", "@vaults/vagrant_secrets.yml",
                            "--vault-password-file=/bin/cat", "-vvvv"]
           log "Executing ansible: #{deploy_string.join(" ")}"
-          execute_and_log(deploy_string,  { "ANSIBLE_HOST_KEY_CHECKING" => "false" }, ansible_vault_password)
+          execute_and_log(deploy_string,  deployment_environment, ansible_vault_password)
         end
+      end
+
+      def deployment_environment
+        {
+          "ANSIBLE_HOST_KEY_CHECKING" => "false",
+          "GITHUB_ACCESS_TOKEN" => ENV["GITHUB_TOKEN"]
+        }
       end
     end
   end
