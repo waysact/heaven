@@ -3,6 +3,9 @@ module Heaven
   module Provider
     # The capistrano provider.
     class Waysact < DefaultProvider
+
+      ALLOWED_ENVIRONMENTS = ["vagrant", "staging"]
+
       def initialize(guid, payload)
         super
         @name = "waysact"
@@ -13,7 +16,10 @@ module Heaven
       end
 
       def execute
+
         return execute_and_log(["/usr/bin/true"]) if Rails.env.test?
+
+        fail "Unknown deployment environment #{environment}" unless ALLOWED_ENVIRONMENTS.include? environment
 
         unless File.exist?(checkout_directory)
           playbook_repository_url = "https://#{ENV['GITHUB_USER']}:#{ENV["GITHUB_TOKEN"]}@github.com/waysact/waysact-ansible.git"
@@ -26,7 +32,7 @@ module Heaven
           execute_and_log(%w{git fetch})
           execute_and_log(["git", "reset", "--hard"])
 
-          ansible_hosts_file = "#{ansible_root}/inventories/vagrant"
+          ansible_hosts_file = "#{ansible_root}/inventories/#{environment}"
           ansible_site_file = "#{ansible_root}/site.yml"
           ansible_extra_vars = [
             "heaven_deploy_sha=#{sha}",
@@ -41,7 +47,7 @@ module Heaven
           # developers mailing list:
           # https://groups.google.com/d/msg/ansible-devel/1vFc3y6Ogto/ne0xKq5pQXcJ
           deploy_string = ["ansible-playbook", "-i", ansible_hosts_file, ansible_site_file, "--tags", "deploy", "-u", "vagrant",
-                           "--verbose", "--extra-vars", ansible_extra_vars, "--extra-vars", "@vaults/vagrant_secrets.yml",
+                           "--verbose", "--extra-vars", ansible_extra_vars, "--extra-vars", "@vaults/#{environment}_secrets.yml",
                            "--vault-password-file=/bin/cat", "-vvvv"]
           log "Executing ansible: #{deploy_string.join(" ")}"
           execute_and_log(deploy_string,  deployment_environment, ansible_vault_password)
