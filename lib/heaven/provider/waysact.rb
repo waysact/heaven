@@ -1,7 +1,7 @@
 module Heaven
   # Top-level module for providers.
   module Provider
-    # The capistrano provider.
+    # The Waysact provider.
     class Waysact < DefaultProvider
 
       ALLOWED_ENVIRONMENTS = ["vagrant", "staging"]
@@ -41,10 +41,10 @@ module Heaven
 
           ansible_vault_password = ENV["ANSIBLE_VAULT_PASSWORD"]
           # ansible-vault doesn't have an argument to read the vault password
-          # directly insteas an executable which should output the password can
-          # be specified with the --vault-password-file argument.  The idea to
-          # use cat to read the password from stdin came from the ansible
-          # developers mailing list:
+          # directly instead an executable which should output the password can
+          # be specified with the --vault-password-file argument. The cat
+          # command is used to read the password from stdin. Idea from the
+          # ansible developers mailing list:
           # https://groups.google.com/d/msg/ansible-devel/1vFc3y6Ogto/ne0xKq5pQXcJ
           deploy_string = ["ansible-playbook", "-i", ansible_hosts_file, ansible_site_file, "--tags", "deploy", "-u", "vagrant",
                            "--verbose", "--extra-vars", ansible_extra_vars, "--extra-vars", "@vaults/#{environment}_secrets.yml",
