@@ -5,6 +5,11 @@ module Heaven
     class Waysact < DefaultProvider
 
       ALLOWED_ENVIRONMENTS = ["vagrant", "staging"]
+      # Map repository names to the corresponding playbook repository
+      PLAYBOOK_REPOS = {
+        "waysact/frontlinr-frontend" => "waysact/waysact-ansible",
+        "waysact/waysact" => "waysact/waysact-ansible"
+      }
 
       def initialize(guid, payload)
         super
@@ -21,8 +26,10 @@ module Heaven
 
         fail "Unknown deployment environment #{environment}" unless ALLOWED_ENVIRONMENTS.include? environment
 
+        playbook_repo = PLAYBOOK_REPOS[name]
+        fail "No corresponding playbook for #{name}" if playbook_repo.nil?
         unless File.exist?(checkout_directory)
-          playbook_repository_url = "https://#{ENV['GITHUB_USER']}:#{ENV["GITHUB_TOKEN"]}@github.com/waysact/waysact-ansible.git"
+          playbook_repository_url = "https://#{ENV['GITHUB_USER']}:#{ENV["GITHUB_TOKEN"]}@github.com/#{playbook_repo}.git"
           log "Cloning #{playbook_repository_url} into #{checkout_directory}"
           execute_and_log(["git", "clone", "--branch=ant/heaven", playbook_repository_url, checkout_directory])
         end
