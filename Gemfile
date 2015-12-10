@@ -17,6 +17,9 @@ gem "dpl",        "1.5.7"
 gem "aws-sdk"
 gem "capistrano", "2.9.0"
 
+# Waysact Provider
+gem "symmetric-encryption", "3.7.2"
+
 # Notifiers
 gem "hipchat"
 gem "campfiyah"
